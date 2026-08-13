@@ -5,7 +5,14 @@ from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.dialects.sqlite import insert as sqlite_insert
 from sqlalchemy.orm import Session
 
-from app.database.models import Bar, SignalRecord
+from app.backtest.models import BacktestResult
+from app.database.models import (
+    BacktestRecord,
+    Bar,
+    EquityPointRecord,
+    SignalRecord,
+    TradeRecord,
+)
 from app.market.models import BarData
 from app.strategy.models import Signal
 
@@ -124,3 +131,49 @@ class BarRepository:
         if limit is not None:
             stmt = stmt.limit(limit)
         return list(self.session.scalars(stmt))
+
+    def save_backtest_result(self, result: BacktestResult) -> None:
+        now = datetime.now()
+        record = BacktestRecord(
+            id=result.backtest_id,
+            strategy=result.params.strategy,
+            symbols=",".join(result.params.symbols),
+            start=result.params.start,
+            end=result.params.end,
+            initial_capital=result.params.initial_capital,
+            commission=result.params.commission,
+            slippage_bps=result.params.slippage_bps,
+            metrics=result.metrics.to_dict(),
+            buy_and_hold_return=result.buy_and_hold_return,
+            created_at=now,
+        )
+        self.session.add(record)
+        self.session.add_all(
+            [
+                EquityPointRecord(
+                    backtest_id=result.backtest_id,
+                    timestamp=point.timestamp,
+                    value=point.value,
+                )
+                for point in result.equity_curve
+            ]
+        )
+        self.session.add_all(
+            [
+                TradeRecord(
+                    backtest_id=result.backtest_id,
+                    symbol=trade.symbol,
+                    entry_timestamp=trade.entry_timestamp,
+                    exit_timestamp=trade.exit_timestamp,
+                    entry_price=trade.entry_price,
+                    exit_price=trade.exit_price,
+                    quantity=trade.quantity,
+                    pnl=trade.pnl,
+                )
+                for trade in result.trades
+            ]
+        )
+        self.session.commit()
+
+    def get_backtest(self, backtest_id: str) -> BacktestRecord | None:
+        return self.session.get(BacktestRecord, backtest_id)
