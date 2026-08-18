@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from app.api.routes import router
+from app.api.routes import api_router, router
 from app.config.settings import get_settings
 from app.database.db import init_db
 
@@ -24,3 +24,4 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title=settings.app_name, lifespan=lifespan)
 app.include_router(router)
+app.include_router(api_router)

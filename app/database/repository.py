@@ -10,6 +10,7 @@ from app.database.models import (
     BacktestRecord,
     Bar,
     EquityPointRecord,
+    LiveStateRecord,
     SignalRecord,
     TradeRecord,
 )
@@ -177,3 +178,16 @@ class BarRepository:
 
     def get_backtest(self, backtest_id: str) -> BacktestRecord | None:
         return self.session.get(BacktestRecord, backtest_id)
+
+    def load_live_state(self) -> dict | None:
+        record = self.session.get(LiveStateRecord, 1)
+        return record.state_json if record else None
+
+    def save_live_state(self, state: dict) -> None:
+        record = self.session.get(LiveStateRecord, 1)
+        if record is None:
+            record = LiveStateRecord(id=1, state_json=state)
+            self.session.add(record)
+        else:
+            record.state_json = state
+        self.session.commit()

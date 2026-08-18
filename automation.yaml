@@ -1,0 +1,116 @@
+# -------------------------------------------------------------------
+# Home Assistant configuration for the Trading Bot
+# -------------------------------------------------------------------
+# Copy the relevant sections into your HA configuration.yaml.
+# This file is NOT committed — it stays in the project folder.
+# -------------------------------------------------------------------
+
+# 1. REST commands — add to configuration.yaml
+# -------------------------------------------------------------------
+# rest_command:
+#   trading_bot_run:
+#     url: "http://trading-bot:8000/api/run"
+#     method: POST
+#     content_type: "application/json"
+
+
+# 2. REST sensors — add to configuration.yaml
+# -------------------------------------------------------------------
+# sensor:
+#   - platform: rest
+#     name: trading_portfolio_value
+#     resource: http://trading-bot:8000/api/portfolio
+#     value_template: "{{ value_json.total_value | round(2) }}"
+#     unit_of_measurement: "USD"
+#     scan_interval: 300
+#
+#   - platform: rest
+#     name: trading_cash
+#     resource: http://trading-bot:8000/api/portfolio
+#     value_template: "{{ value_json.cash | round(2) }}"
+#     unit_of_measurement: "USD"
+#     scan_interval: 300
+#
+#   - platform: rest
+#     name: trading_realized_pnl
+#     resource: http://trading-bot:8000/api/portfolio
+#     value_template: "{{ value_json.realized_pnl | round(2) }}"
+#     unit_of_measurement: "USD"
+#     scan_interval: 300
+#
+#   - platform: rest
+#     name: trading_unrealized_pnl
+#     resource: http://trading-bot:8000/api/portfolio
+#     value_template: "{{ value_json.unrealized_pnl | round(2) }}"
+#     unit_of_measurement: "USD"
+#     scan_interval: 300
+#
+#   - platform: rest
+#     name: trading_open_positions
+#     resource: http://trading-bot:8000/api/positions
+#     value_template: "{{ value_json | length }}"
+#     scan_interval: 300
+#
+#   - platform: rest
+#     name: trading_buy_signals
+#     resource: http://trading-bot:8000/api/signals?limit=50
+#     value_template: "{{ value_json | selectattr('action','equalto','BUY') | list | count }}"
+#     scan_interval: 600
+#
+#   - platform: rest
+#     name: trading_sell_signals
+#     resource: http://trading-bot:8000/api/signals?limit=50
+#     value_template: "{{ value_json | selectattr('action','equalto','SELL') | list | count }}"
+#     scan_interval: 600
+#
+#   - platform: rest
+#     name: trading_win_rate
+#     resource: http://trading-bot:8000/api/performance
+#     value_template: "{{ value_json.win_rate }}"
+#     unit_of_measurement: "%"
+#     scan_interval: 600
+#
+#   - platform: rest
+#     name: trading_max_drawdown
+#     resource: http://trading-bot:8000/api/performance
+#     value_template: "{{ value_json.max_drawdown_pct }}"
+#     unit_of_measurement: "%"
+#     scan_interval: 600
+
+
+# 3. Automation — add to automations.yaml
+# -------------------------------------------------------------------
+- id: trading_bot_hourly_analysis
+  alias: "Trading Bot - Hourly Analysis"
+  description: "Trigger one analysis cycle every hour during US market hours."
+  trigger:
+    - platform: time_pattern
+      minutes: "/60"
+  condition:
+    - condition: time
+      after: "09:30:00"
+      before: "16:00:00"
+      weekday:
+        - mon
+        - tue
+        - wed
+        - thu
+        - fri
+    - condition: template
+      value_template: >
+        {{ not is_state('sensor.trading_last_run_status', 'error') or
+           now() - states.sensor.trading_last_run_status.last_changed > timedelta(minutes=30) }}
+  action:
+    - service: rest_command.trading_bot_run
+      data: {}
+    - delay:
+        seconds: 5
+    - service: notify.notify
+      data:
+        title: "Trading Bot"
+        message: >
+          Analysis complete.
+          Status: {{ state_attr('sensor.trading_last_run_status', 'status') | default('unknown') }}
+          Value: ${{ states('sensor.trading_portfolio_value') | default('0') }}
+          P&L: ${{ states('sensor.trading_realized_pnl') | default('0') }}
+  mode: single

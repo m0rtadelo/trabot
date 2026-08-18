@@ -88,3 +88,10 @@ class TradeRecord(Base):
     exit_price: Mapped[float] = mapped_column(Float)
     quantity: Mapped[float] = mapped_column(Float)
     pnl: Mapped[float] = mapped_column(Float)
+
+
+class LiveStateRecord(Base):
+    __tablename__ = "live_state"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, default=1)
+    state_json: Mapped[dict] = mapped_column(JSON)
