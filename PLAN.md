@@ -13,7 +13,7 @@ The system will:
 3. Analyze 1-hour candles.
 4. Calculate technical indicators.
 5. Generate BUY / SELL / HOLD signals using a deterministic strategy.
-6. Simulate a portfolio starting with $1,000.
+6. Simulate a portfolio starting with $10,000.
 7. Persist all decisions and simulated trades.
 8. Provide an API that can be triggered by Home Assistant.
 9. Expose portfolio and strategy information to Home Assistant.
