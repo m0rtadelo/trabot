@@ -48,6 +48,7 @@ class AlpacaMarketDataProvider(MarketDataProvider):
                 "end": end.isoformat(),
                 "limit": 10000,
                 "adjustment": "raw",
+                "feed": self._data_feed,
             }
             if page_token:
                 params["next_page_token"] = page_token

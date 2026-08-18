@@ -84,6 +84,7 @@ def main() -> int:
         provider = AlpacaMarketDataProvider(
             api_key=settings.alpaca_api_key,
             api_secret=settings.alpaca_api_secret,
+            data_feed=settings.alpaca_data_feed,
         )
     except ValueError as exc:
         logger.error("failed to create provider: %s", exc)

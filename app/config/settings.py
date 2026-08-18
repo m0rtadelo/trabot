@@ -10,6 +10,7 @@ class Settings(BaseSettings):
 
     alpaca_api_key: str = ""
     alpaca_api_secret: str = ""
+    alpaca_data_feed: str = "iex"
 
     database_url: str = "postgresql://trading:password@postgres:5432/trading"
 

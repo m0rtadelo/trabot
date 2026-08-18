@@ -99,6 +99,7 @@ def run_cycle(
     provider = AlpacaMarketDataProvider(
         api_key=settings.alpaca_api_key,
         api_secret=settings.alpaca_api_secret,
+        data_feed=settings.alpaca_data_feed,
     )
 
     now = datetime.now(timezone.utc)
