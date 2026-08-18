@@ -14,11 +14,13 @@ class AlpacaMarketDataProvider(MarketDataProvider):
         api_key: str,
         api_secret: str,
         base_url: str = DEFAULT_ALPACA_DATA_URL,
+        data_feed: str = "iex",
         timeout: float = 30.0,
         transport: httpx.BaseTransport | None = None,
     ) -> None:
         if not api_key or not api_secret:
             raise ValueError("Alpaca API key and secret are required")
+        self._data_feed = data_feed
         self._client = httpx.Client(
             base_url=base_url,
             headers={
