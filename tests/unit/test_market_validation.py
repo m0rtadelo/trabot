@@ -60,3 +60,18 @@ def test_negative_volume_rejected() -> None:
 def test_unsorted_bars_rejected() -> None:
     with pytest.raises(BarValidationError, match="time-ordered"):
         validate_bars([make_bar(2), make_bar(0)])
+
+
+def test_same_timestamp_different_symbols_allowed() -> None:
+    bars = [
+        make_bar(0, symbol="AAPL"),
+        make_bar(0, symbol="MSFT"),
+        make_bar(1, symbol="AAPL"),
+        make_bar(1, symbol="MSFT"),
+    ]
+    validate_bars(bars)
+
+
+def test_same_timestamp_same_symbol_rejected() -> None:
+    with pytest.raises(BarValidationError, match="time-ordered"):
+        validate_bars([make_bar(0, symbol="AAPL"), make_bar(0, symbol="AAPL")])
