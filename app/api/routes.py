@@ -76,12 +76,12 @@ def api_portfolio(session: Session = Depends(get_session)) -> dict:
 
 
 @api_router.get("/positions")
-def api_positions(session: Session = Depends(get_session)) -> list[dict]:
+def api_positions(session: Session = Depends(get_session)) -> dict:
     settings = get_settings()
     repo = BarRepository(session)
     state = repo.load_live_state()
     if state is None:
-        return []
+        return {"positions": []}
 
     current_prices = {}
     for symbol in settings.symbol_list:
@@ -100,27 +100,29 @@ def api_positions(session: Session = Depends(get_session)) -> list[dict]:
             "market_value": round(p["quantity"] * price, 2),
             "unrealized_pnl": round(p["quantity"] * (price - p["avg_entry_price"]), 2),
         })
-    return positions
+    return {"positions": positions}
 
 
 @api_router.get("/signals")
 def api_signals(
     limit: int = 50,
     session: Session = Depends(get_session),
-) -> list[dict]:
+) -> dict:
     repo = BarRepository(session)
     records = repo.get_signals(limit=limit)
-    return [
-        {
-            "symbol": r.symbol,
-            "timestamp": r.timestamp.isoformat(),
-            "action": r.action,
-            "score": r.score,
-            "reason": r.reason,
-            "strategy": r.strategy,
-        }
-        for r in records
-    ]
+    return {
+        "signals": [
+            {
+                "symbol": r.symbol,
+                "timestamp": r.timestamp.isoformat(),
+                "action": r.action,
+                "score": r.score,
+                "reason": r.reason,
+                "strategy": r.strategy,
+            }
+            for r in records
+        ]
+    }
 
 
 @api_router.get("/performance")

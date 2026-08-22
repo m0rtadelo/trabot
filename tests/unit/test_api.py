@@ -46,13 +46,13 @@ def test_portfolio_before_any_run():
 def test_positions_before_any_run():
     r = client.get("/api/positions")
     assert r.status_code == 200
-    assert r.json() == []
+    assert r.json()["positions"] == []
 
 
 def test_signals_before_any_run():
     r = client.get("/api/signals")
     assert r.status_code == 200
-    assert r.json() == []
+    assert r.json()["signals"] == []
 
 
 def test_status_before_any_run():
