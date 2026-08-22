@@ -38,9 +38,9 @@ def test_portfolio_before_any_run():
     r = client.get("/api/portfolio")
     assert r.status_code == 200
     data = r.json()
-    assert data["cash"] == 1000.0
+    assert data["cash"] == 10000.0
     assert data["positions"] == []
-    assert data["total_value"] == 1000.0
+    assert data["total_value"] == 10000.0
 
 
 def test_positions_before_any_run():
@@ -67,6 +67,6 @@ def test_performance_before_any_run():
     r = client.get("/api/performance")
     assert r.status_code == 200
     data = r.json()
-    assert data["initial_capital"] == 1000.0
-    assert data["current_value"] == 1000.0
+    assert data["initial_capital"] == 10000.0
+    assert data["current_value"] == 10000.0
     assert data["num_trades"] == 0

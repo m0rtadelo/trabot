@@ -11,6 +11,11 @@ logger = logging.getLogger("trading_bot")
 
 settings = get_settings()
 
+logging.basicConfig(
+    level=settings.log_level.upper(),
+    format="%(asctime)s %(levelname)s %(name)s %(message)s",
+)
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

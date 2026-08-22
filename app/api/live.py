@@ -8,6 +8,7 @@ from app.database.repository import BarRepository
 from app.market.alpaca import AlpacaMarketDataProvider
 from app.market.models import BarData
 from app.market.validation import BarValidationError, validate_bars
+from app.market.timeframe import drop_incomplete_bars
 from app.portfolio.models import Portfolio, Position
 from app.portfolio.simulator import Simulator
 from app.strategy.features import compute_features
@@ -109,7 +110,9 @@ def run_cycle(
     for symbol in settings.symbol_list:
         try:
             bars = provider.get_bars(symbol, settings.timeframe, start, now)
-            fetched_bars.extend(bars)
+            fetched_bars.extend(
+                drop_incomplete_bars(bars, settings.timeframe, now)
+            )
         except Exception as exc:
             logger.error("fetch failed symbol=%s error=%s", symbol, exc)
             state["last_run_status"] = "error"

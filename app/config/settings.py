@@ -14,7 +14,7 @@ class Settings(BaseSettings):
 
     database_url: str = "postgresql://trading:password@postgres:5432/trading"
 
-    initial_capital: float = 1000.0
+    initial_capital: float = 10000.0
 
     timeframe: str = "1Hour"
 

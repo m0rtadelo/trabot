@@ -10,6 +10,7 @@ from app.config.settings import get_settings
 from app.database.db import SessionLocal, init_db
 from app.database.repository import BarRepository
 from app.market.alpaca import AlpacaMarketDataProvider
+from app.market.timeframe import drop_incomplete_bars
 from app.market.validation import BarValidationError, validate_bars
 
 logger = logging.getLogger("download_data")
@@ -104,6 +105,8 @@ def main() -> int:
             except Exception as exc:
                 logger.error("fetch failed symbol=%s error=%s", symbol, exc)
                 continue
+
+            bars = drop_incomplete_bars(bars, settings.timeframe, args.end)
 
             try:
                 validate_bars(bars)

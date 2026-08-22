@@ -185,7 +185,7 @@ ALPACA_API_SECRET=
 
 DATABASE_URL=postgresql://trading:password@postgres:5432/trading
 
-INITIAL_CAPITAL=1000
+INITIAL_CAPITAL=10000
 
 TIMEFRAME=1Hour
 
@@ -415,7 +415,7 @@ This is important for later analysis and debugging.
 Start with:
 
 ```text
-Initial capital: $1,000
+Initial capital: $10,000
 ```
 
 The simulator must support:
@@ -450,8 +450,8 @@ Maximum position size: 20% of portfolio
 Therefore:
 
 ```text
-$1,000 portfolio
-→ maximum $200 per position
+$10,000 portfolio
+→ maximum $2,000 per position
 ```
 
 The risk-management implementation must be separate from the strategy.
